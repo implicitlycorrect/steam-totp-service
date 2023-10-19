@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SteamGuard Code Generator</title>
     <style>
+        * {
+            box-sizing: content-box;
+        }
+
         body {
             font-family: 'Arial', sans-serif;
             background-color: #2C3E50;
             color: #fff;
-            margin: 0;
-            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -51,19 +53,11 @@
         }
 
         select, input, button {
-            width: 100%;
+            width: 80%; /* Adjust the width based on your design preferences */
             padding: 10px;
-            margin-bottom: 15px;
+            margin: 0 auto 15px;
             border: none;
             border-radius: 5px;
-        }
-
-        select {
-            background-color: #2C3E50;
-            color: #fff;
-        }
-
-        input, button {
             background-color: #2C3E50;
             color: #fff;
             display: block;
@@ -84,10 +78,29 @@
             margin-top: 15px;
         }
 
-        p.code {
-            color: #27AE60;
+        .steam-guard-code {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px;
+            background-color: #000000;
+            font-family: Arial, sans-serif;
+        }
+
+        .steam-guard-code .code {
+            font-size: 150%;
             font-weight: bold;
-            margin-top: 15px;
+            background-color: darkblue;
+            color: #1aff00;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .steam-guard-code .secret {
+            color: red;
+        }
+
+        .steam-guard-code .created-at {
+            color: whitesmoke;
         }
     </style>
 </head>
@@ -107,7 +120,11 @@
     {{ if .error }}
     <p class="error">Error: {{ .error }}</p>
     {{ else if .code }}
-    <p class="code">Your SteamGuard Code: {{ .code }}</p>
+    <div class="steam-guard-code">
+        <p class="code">{{ .code }}</p>
+        <p class="secret">{{ .secret }}</p>
+        <p class="created-at">{{ .created_at }}</p>
+    </div>
     {{ end }}
 </div>
 <script>
@@ -134,8 +151,6 @@
 
     // Handle form submission
     document.querySelector("form").addEventListener("submit", async (event) => {
-        event.preventDefault();
-
         const selectedSharedSecret = sharedSecretSelect.value;
         const newSharedSecret = newSharedSecretInput.value.trim();
 
@@ -147,19 +162,25 @@
         }
 
         if (newSharedSecret) {
-            // Add the new shared secret to the dropdown
-            const option = document.createElement("option");
-            option.value = newSharedSecret;
-            option.textContent = newSharedSecret;
-            sharedSecretSelect.appendChild(option);
+            // Check if the new shared secret already exists in localStorage
+            const existingSecrets = JSON.parse(localStorage.getItem("sharedSecrets")) || [];
+            if (!existingSecrets.includes(newSharedSecret)) {
+                // Add the new shared secret to the dropdown
+                const option = document.createElement("option");
+                option.value = newSharedSecret;
+                option.textContent = newSharedSecret;
+                sharedSecretSelect.appendChild(option);
 
-            // Update the shared secrets in localStorage
-            const secrets = JSON.parse(localStorage.getItem("sharedSecrets")) || [];
-            secrets.push(newSharedSecret);
-            localStorage.setItem("sharedSecrets", JSON.stringify(secrets));
+                // Update the shared secrets in localStorage
+                existingSecrets.push(newSharedSecret);
+                localStorage.setItem("sharedSecrets", JSON.stringify(existingSecrets));
 
-            // Clear the new shared secret input
-            newSharedSecretInput.value = "";
+                // Clear the new shared secret input
+                newSharedSecretInput.value = "";
+            } else {
+                // Inform the user that the secret already exists
+                alert("The shared secret already exists.");
+            }
         }
     });
 </script>

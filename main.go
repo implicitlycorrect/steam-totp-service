@@ -34,11 +34,17 @@ func setupRouter() *gin.Engine {
 
 	r.POST("/generate-steamguard-code", func(c *gin.Context) {
 		sharedSecret := c.PostForm("sharedSecret")
+		if len(sharedSecret) == 0 {
+			c.HTML(http.StatusBadRequest, "index.html", gin.H{"error": "no shared secret provided"})
+			return
+		}
 		code, err := GenerateSteamGuardCode(sharedSecret)
 		if err != nil {
 			c.HTML(http.StatusBadRequest, "index.html", gin.H{"error": err.Error()})
 		} else {
-			c.HTML(http.StatusOK, "index.html", gin.H{"code": code})
+			currentTime := time.Now()
+			formattedTime := currentTime.Format("02 January 2006 03:04:05 PM")
+			c.HTML(http.StatusOK, "index.html", gin.H{"code": code, "secret": sharedSecret, "created_at": formattedTime})
 		}
 	})
 
