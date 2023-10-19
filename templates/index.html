@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SteamGuard Code Generator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #2C3E50;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            background: #34495E;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            background-color: #2980B9;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            margin: 0;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        form {
+            padding: 20px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        select, input, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        select {
+            background-color: #2C3E50;
+            color: #fff;
+        }
+
+        input, button {
+            background-color: #2C3E50;
+            color: #fff;
+            display: block;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #2980B9;
+        }
+
+        button:hover {
+            background-color: #1E8BC3;
+        }
+
+        p.error {
+            color: #E74C3C;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        p.code {
+            color: #27AE60;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>SteamGuard Code Generator</h1>
+    <form action="/generate-steamguard-code" method="post">
+        <label for="sharedSecretSelect">Select your Steam Shared Secret:</label>
+        <select id="sharedSecretSelect" name="sharedSecret">
+            <!-- Options for shared secrets will be dynamically added here -->
+        </select>
+        <label for="newSharedSecret">Enter your Steam Shared Secret:</label>
+        <input type="text" id="newSharedSecret" placeholder="Enter a new secret">
+        <button type="submit">Generate Code</button>
+    </form>
+    <hr>
+    {{ if .error }}
+    <p class="error">Error: {{ .error }}</p>
+    {{ else if .code }}
+    <p class="code">Your SteamGuard Code: {{ .code }}</p>
+    {{ end }}
+</div>
+<script>
+    const sharedSecretSelect = document.getElementById("sharedSecretSelect");
+    const newSharedSecretInput = document.getElementById("newSharedSecret");
+
+    // Load shared secrets from localStorage and populate the dropdown
+    const loadSharedSecrets = () => {
+        sharedSecretSelect.innerHTML = "";
+
+        // Load shared secrets from localStorage
+        const secrets = JSON.parse(localStorage.getItem("sharedSecrets")) || [];
+
+        // Add an option for each shared secret
+        secrets.forEach(secret => {
+            const option = document.createElement("option");
+            option.value = secret;
+            option.textContent = secret;
+            sharedSecretSelect.appendChild(option);
+        });
+    };
+
+    loadSharedSecrets();
+
+    // Handle form submission
+    document.querySelector("form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const selectedSharedSecret = sharedSecretSelect.value;
+        const newSharedSecret = newSharedSecretInput.value.trim();
+
+        if (selectedSharedSecret) {
+            // Handle code generation with 'selectedSharedSecret'
+            // You should implement this logic in your Go server
+            // The selectedSharedSecret is sent to the server for code generation
+            console.log("Selected Shared Secret: " + selectedSharedSecret);
+        }
+
+        if (newSharedSecret) {
+            // Add the new shared secret to the dropdown
+            const option = document.createElement("option");
+            option.value = newSharedSecret;
+            option.textContent = newSharedSecret;
+            sharedSecretSelect.appendChild(option);
+
+            // Update the shared secrets in localStorage
+            const secrets = JSON.parse(localStorage.getItem("sharedSecrets")) || [];
+            secrets.push(newSharedSecret);
+            localStorage.setItem("sharedSecrets", JSON.stringify(secrets));
+
+            // Clear the new shared secret input
+            newSharedSecretInput.value = "";
+        }
+    });
+</script>
+</body>
+</html>
