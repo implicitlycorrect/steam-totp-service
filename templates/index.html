@@ -134,8 +134,6 @@
 
     // Handle form submission
     document.querySelector("form").addEventListener("submit", async (event) => {
-        event.preventDefault();
-
         const selectedSharedSecret = sharedSecretSelect.value;
         const newSharedSecret = newSharedSecretInput.value.trim();
 
